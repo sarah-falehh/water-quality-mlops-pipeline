@@ -60,7 +60,7 @@ Rather than focusing only on model training, the project covers the entire lifec
 
 <p align="center">
 
-<img src="assets/architecture.png" width="95%">
+<img src="docs/architecture.png" width="95%">
 
 </p>
 
