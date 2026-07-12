@@ -1,25 +1,24 @@
-# Image de base Python légère
-FROM python:3.10-slim
+FROM python:3.12-slim
 
-# Dossier de travail dans le conteneur
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src
+
 WORKDIR /app
 
-# Copier les dépendances
 COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Installer les dépendances
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir \
-    --default-timeout=120 \
-    --index-url https://pypi.org/simple \
-    -r requirements.txt
+COPY src ./src
+COPY data ./data
+COPY web ./web
 
+RUN useradd --create-home appuser && chown -R appuser:appuser /app
+USER appuser
 
-# Copier tout le projet dans l'image
-COPY . .
-
-# Exposer le port FastAPI
 EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
-# Commande de lancement de l'API
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "water_quality.api:app", "--host", "0.0.0.0", "--port", "8000"]
