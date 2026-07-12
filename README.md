@@ -1,130 +1,91 @@
-# Water Quality MLOps Pipeline
+<div align="center">
 
-An end-to-end machine learning system for predicting water potability, exposing predictions through a FastAPI service, tracking experiments with MLflow, packaging the application with Docker, and forwarding operational metrics to Elasticsearch/Kibana.
+# 💧 Water Quality MLOps Pipeline
 
-## Highlights
+### End-to-End Machine Learning Pipeline for Water Potability Prediction
 
-- Reproducible preprocessing and Random Forest training pipeline
-- MLflow experiment tracking for parameters, metrics and model artifacts
-- FastAPI prediction, health-check and model-retraining endpoints
-- Interactive OpenAPI/Swagger documentation
-- Docker and Docker Compose deployment
-- Elasticsearch, Kibana and Filebeat monitoring stack
-- Automated code-quality, security and test checks with GitHub Actions
+[![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)]()
+[![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi)]()
+[![Docker](https://img.shields.io/badge/Docker-Container-2496ED?logo=docker)]()
+[![MLflow](https://img.shields.io/badge/MLflow-Tracking-0194E2)]()
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI-2088FF?logo=github-actions)]()
 
-## Architecture
+An end-to-end MLOps project demonstrating model training, experiment tracking, API deployment, containerization and production monitoring.
 
-```mermaid
-flowchart LR
-    A[Water Quality Dataset] --> B[Preprocessing & Imputation]
-    B --> C[Random Forest Training]
-    C --> D[MLflow Tracking]
-    C --> E[Serialized Model]
-    E --> F[FastAPI Service]
-    F --> G[Swagger / Web UI]
-    D --> H[Elasticsearch]
-    F --> H
-    H --> I[Kibana]
-    J[GitHub Actions] --> B
-    J --> F
-```
+</div>
 
-## API demonstration
+---
 
-### Prediction endpoint
+# Overview
 
-![Swagger prediction response](assets/screenshots/swagger-predict.png)
+This project predicts whether water is potable based on physicochemical properties.
 
-### Model retraining endpoint
+It demonstrates a complete Machine Learning lifecycle, from data preprocessing and model training to deployment using FastAPI and Docker, experiment tracking with MLflow, continuous integration with GitHub Actions and monitoring using Elasticsearch and Kibana.
 
-![Swagger retraining response](assets/screenshots/swagger-retrain.png)
+---
 
-### Docker image
+# Features
 
-![Docker Hub image](assets/screenshots/dockerhub-image.png)
+- Machine Learning Pipeline
+- FastAPI REST API
+- Swagger / OpenAPI Documentation
+- Docker & Docker Compose
+- MLflow Experiment Tracking
+- GitHub Actions CI
+- Elasticsearch Monitoring
+- Kibana Visualization
 
-## Project structure
+---
 
-```text
-.
-├── .github/workflows/ci.yml
-├── assets/screenshots/
-├── data/water_potability.csv
-├── src/water_quality/
-│   ├── api.py
-│   ├── cli.py
-│   ├── config.py
-│   ├── monitoring.py
-│   └── pipeline.py
-├── tests/
-├── web/index.html
-├── Dockerfile
-├── docker-compose.yml
-├── Makefile
-└── requirements.txt
-```
+# Tech Stack
 
-## Run locally
+| Category | Technologies |
+|----------|--------------|
+| Language | Python |
+| ML | Scikit-Learn |
+| API | FastAPI |
+| Documentation | Swagger / OpenAPI |
+| Tracking | MLflow |
+| Containers | Docker |
+| CI | GitHub Actions |
+| Monitoring | Elasticsearch, Kibana |
 
-```bash
-python -m venv .venv
-source .venv/bin/activate       # Windows PowerShell: .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-make train
-make api
-```
+---
 
-Open:
+# Screenshots
 
-- API documentation: `http://localhost:8000/docs`
-- Web interface: `http://localhost:8000/ui`
-- Health endpoint: `http://localhost:8000/health`
+## Prediction API
 
-## Run with Docker
+![](assets/screenshots/swagger-predict.png)
 
-```bash
-docker compose up --build
-```
+---
 
-Services:
+## Retraining Endpoint
 
-| Service | URL |
-|---|---|
-| FastAPI / Swagger | `http://localhost:8000/docs` |
-| Kibana | `http://localhost:5601` |
-| Elasticsearch | `http://localhost:9200` |
+![](assets/screenshots/swagger-retrain.png)
 
-The API starts without a model on a clean installation. Call `POST /retrain` once to train and persist the model, then use `POST /predict`.
+---
 
-## Example request
+## Docker Image
 
-```json
-{
-  "ph": 7.0,
-  "Hardness": 180,
-  "Solids": 20000,
-  "Chloramines": 7,
-  "Sulfate": 330,
-  "Conductivity": 420,
-  "Organic_carbon": 14,
-  "Trihalomethanes": 65,
-  "Turbidity": 4
-}
-```
+![](assets/screenshots/dockerhub-image.png)
 
-## Tests and quality checks
+---
 
-```bash
-make format
-make lint
-make security
-make test
-```
+# Future Improvements
 
-## Important note
+- Kubernetes deployment
+- Cloud deployment (AWS/Azure)
+- Model Registry
+- Automated retraining
+- Prometheus & Grafana monitoring
 
-This repository is an educational machine learning project. Its predictions must not be used as a substitute for certified laboratory testing or public-health guidance.
+---
 
-## Author
+# Author
 
-**Sarah Faleh** — Final-year Software Engineering student specializing in Data Science and Artificial Intelligence.
+**Sarah Faleh**
+
+Final-Year Software Engineering Student
+
+Data Science & Artificial Intelligence
