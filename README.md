@@ -233,4 +233,4 @@ Interested in:
 - Generative AI
 - Software Engineering
 
-LinkedIn: *(add your profile)*
+LinkedIn: [linkedin.com/in/sarah-faleh](https://linkedin.com/in/sarah-faleh)
