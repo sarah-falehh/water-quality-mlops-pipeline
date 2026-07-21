@@ -11,17 +11,17 @@
 </h1>
 
 <p align="center">
-  A production-oriented machine learning project covering training,
-  experiment tracking, API serving, containerization, continuous integration,
-  logging, and monitoring.
+  Production-oriented machine learning pipeline for water potability prediction,
+  covering training, experiment tracking, API serving, containerization,
+  continuous integration, logging, and monitoring.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-REST_API-009688?logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white" alt="Docker">
   <img src="https://img.shields.io/badge/MLflow-Experiment_Tracking-0194E2?logo=mlflow&logoColor=white" alt="MLflow">
-  <img src="https://img.shields.io/badge/Elasticsearch-Logging-005571?logo=elasticsearch&logoColor=white" alt="Elasticsearch">
+  <img src="https://img.shields.io/badge/Elasticsearch-Metric_Logging-005571?logo=elasticsearch&logoColor=white" alt="Elasticsearch">
   <img src="https://img.shields.io/badge/Kibana-Visualization-E8478B?logo=kibana&logoColor=white" alt="Kibana">
   <img src="https://img.shields.io/badge/License-MIT-success" alt="MIT License">
 </p>
@@ -40,25 +40,30 @@
 ## Overview
 
 This repository demonstrates an end-to-end **Machine Learning Operations
-(MLOps)** workflow for predicting whether water is potable from its
-physicochemical properties.
+(MLOps)** workflow for predicting whether a water sample is potable from nine
+physicochemical measurements.
 
-The project goes beyond model training and covers the broader lifecycle of a
-machine learning application:
+The project goes beyond model training and covers the main lifecycle stages of
+a production-oriented machine learning application:
 
-- Data loading and preprocessing
-- Feature preparation
-- Model training and evaluation
-- Experiment tracking with MLflow
-- Model serving through a FastAPI REST API
-- Interactive API documentation with Swagger/OpenAPI
-- Containerization with Docker and Docker Compose
-- Continuous integration with GitHub Actions
-- Application logging with Elasticsearch and Kibana
+- Dataset loading and preprocessing
+- Missing-value handling
+- Stratified train/test splitting
+- Random Forest model training and evaluation
+- MLflow experiment tracking and model artifact logging
+- FastAPI model serving
+- Swagger/OpenAPI documentation
 - Model retraining through an API endpoint
+- Docker containerization
+- Docker Compose service orchestration
+- Continuous integration with GitHub Actions
+- Test-accuracy metric logging to Elasticsearch
+- Kibana visualization support
+- Automated API and pipeline tests
 
-The codebase follows a modular structure so that the training, inference,
-monitoring, configuration, and API components can be maintained independently.
+The project uses a modular `src` layout so that configuration, training,
+inference, monitoring, and command-line functionality remain separated and
+maintainable.
 
 ---
 
@@ -66,17 +71,22 @@ monitoring, configuration, and API components can be maintained independently.
 
 - Reproducible machine learning training pipeline
 - Binary classification of potable and non-potable water
+- Median imputation for missing values
+- Stratified train/test split
+- Class-balanced Random Forest classifier
 - FastAPI inference service
-- Interactive Swagger/OpenAPI documentation
-- Dedicated prediction and model-retraining endpoints
-- MLflow parameter, metric, and artifact tracking
-- Dockerized application environment
-- Multi-service orchestration with Docker Compose
-- Automated formatting, linting, and testing through GitHub Actions
-- Structured application and prediction logging
-- Elasticsearch log indexing
-- Kibana log visualization
-- Automated tests for the API and ML pipeline
+- Interactive Swagger and ReDoc documentation
+- Prediction confidence returned through `predict_proba`
+- Dedicated model-retraining endpoint
+- MLflow parameter, metric, and model artifact tracking
+- Dockerized backend application
+- Docker Compose stack with Elasticsearch, Kibana, and Filebeat
+- GitHub Actions CI pipeline
+- Black formatting checks
+- Flake8 linting
+- Bandit security scanning
+- Pytest-based automated testing
+- Custom browser-based user interface
 - Modular Python package under `src/water_quality`
 
 ---
@@ -100,42 +110,54 @@ application.
 Water Potability Dataset
            │
            ▼
-Data Loading and Validation
+CSV Loading
            │
            ▼
-Cleaning and Missing-Value Handling
+Replace Zero pH Values with Missing Values
            │
            ▼
-Feature Preparation
+Median Imputation
            │
            ▼
-Train/Test Split
+Feature / Target Separation
+           │
+           ▼
+Stratified Train/Test Split
            │
            ▼
 Random Forest Training
            │
-           ├──────────────► MLflow Tracking
+           ├──────────────► MLflow
            │                  ├── Parameters
-           │                  ├── Metrics
-           │                  └── Artifacts
+           │                  ├── Train Accuracy
+           │                  ├── Test Accuracy
+           │                  └── Model Artifact
+           │
+           └──────────────► Elasticsearch
+                              └── Test Accuracy Metric
+           │
            ▼
 Model Evaluation
            │
            ▼
-Model Serialization
+Joblib Model Serialization
            │
            ▼
 FastAPI REST Service
            │
-           ├── /predict
-           ├── /retrain
-           └── /docs
+           ├── GET  /
+           ├── GET  /health
+           ├── POST /predict
+           ├── POST /retrain
+           ├── GET  /ui
+           ├── GET  /docs
+           └── GET  /redoc
            │
            ▼
 Docker Deployment
            │
            ▼
-Elasticsearch and Kibana Monitoring
+Elasticsearch + Kibana + Filebeat
 ```
 
 ---
@@ -144,17 +166,22 @@ Elasticsearch and Kibana Monitoring
 
 | Category | Technologies |
 |---|---|
-| Programming language | Python 3.11 |
+| Programming language | Python 3.12 |
 | Data processing | Pandas, NumPy |
 | Machine learning | Scikit-learn, Random Forest |
-| Model evaluation | Accuracy, precision, recall, F1-score |
+| Missing-value handling | Scikit-learn `SimpleImputer` |
+| Model evaluation | Accuracy, precision, recall, F1-score, classification report |
+| Model serialization | Joblib |
 | API development | FastAPI, Uvicorn |
-| API documentation | Swagger UI, OpenAPI |
+| API validation | Pydantic |
+| API documentation | Swagger UI, OpenAPI, ReDoc |
 | Experiment tracking | MLflow |
-| Containerization | Docker, Docker Compose |
-| Monitoring and logging | Elasticsearch, Kibana, Filebeat |
+| Containers | Docker, Docker Compose |
+| Metric logging | Elasticsearch |
+| Visualization | Kibana |
+| Container log forwarding | Filebeat |
 | Continuous integration | GitHub Actions |
-| Testing | Pytest |
+| Testing | Pytest, FastAPI TestClient |
 | Code quality | Black, Flake8, Bandit |
 | Version control | Git, GitHub |
 
@@ -213,10 +240,23 @@ water-quality-prediction-mlops/
 
 ## Dataset
 
-The project uses a water-potability dataset containing physicochemical
-measurements associated with drinking-water quality.
+The project uses the **Water Potability** dataset, which contains
+physicochemical measurements associated with drinking-water quality.
 
-### Main features
+### Dataset dimensions
+
+| Property | Value |
+|---|---:|
+| Number of observations | 3,276 |
+| Total columns | 10 |
+| Number of input features | 9 |
+| Target variable | `Potability` |
+| Non-potable samples | 1,998 |
+| Potable samples | 1,278 |
+| Non-potable proportion | 60.99% |
+| Potable proportion | 39.01% |
+
+### Input features
 
 | Feature | Description |
 |---|---|
@@ -229,20 +269,27 @@ measurements associated with drinking-water quality.
 | `Organic_carbon` | Organic carbon concentration |
 | `Trihalomethanes` | Trihalomethane concentration |
 | `Turbidity` | Water clarity measurement |
-| `Potability` | Target variable: potable or non-potable |
+| `Potability` | Target: `1` for potable and `0` for non-potable |
 
-### Dataset information
+### Missing values in the raw dataset
 
-| Property | Value |
+| Feature | Missing values |
 |---|---:|
-| Number of observations | `TO UPDATE` |
-| Number of input features | 9 |
-| Target classes | Potable / Non-potable |
-| Missing values | Present in selected variables |
-| Final model | Random Forest Classifier |
+| `ph` | 491 |
+| `Sulfate` | 781 |
+| `Trihalomethanes` | 162 |
+| Other columns | 0 |
 
-> Add the original dataset URL and its licensing information here before
-> publishing the final release.
+### Preprocessing
+
+The implemented preprocessing pipeline:
+
+1. Loads the dataset from CSV.
+2. Replaces zero values in `ph` with `NaN`.
+3. Applies median imputation to every dataset column.
+4. Separates the nine input variables from `Potability`.
+5. Converts the target variable to integers.
+6. Creates an 80/20 stratified train/test split.
 
 > **Disclaimer:** This project is intended for educational and demonstration
 > purposes only. Its predictions must not replace certified laboratory
@@ -250,47 +297,164 @@ measurements associated with drinking-water quality.
 
 ---
 
-## Model Training Pipeline
+## Model Configuration
 
-The training workflow performs the following steps:
+The production model uses the following configuration:
 
-1. Load the CSV dataset.
-2. Validate the expected columns.
-3. Handle missing values.
-4. Separate input variables from the target.
-5. Split the data into training and testing subsets.
-6. Train a Random Forest classifier.
-7. Evaluate the trained model.
-8. Log parameters and metrics to MLflow.
-9. Serialize the selected model for inference.
-10. Expose the model through FastAPI.
+| Parameter | Value |
+|---|---|
+| Estimator | Random Forest Classifier |
+| Number of estimators | 300 |
+| Maximum depth | None |
+| Random state | 42 |
+| Class weighting | Balanced |
+| Training set | 80% |
+| Test set | 20% |
+| Split strategy | Stratified |
+| Missing-value strategy | Median imputation |
+| Model serialization | Joblib |
+
+The retraining endpoint allows users to customize:
+
+| Parameter | Accepted values |
+|---|---|
+| `n_estimators` | 10 to 2,000 |
+| `max_depth` | `null` or 1 to 100 |
+| `random_state` | Integer |
 
 ---
 
 ## Model Performance
 
-Replace the values below with the metrics generated by your final experiment.
+The metrics below were reproduced using the exact pipeline implemented in
+`src/water_quality/pipeline.py`:
+
+```python
+RandomForestClassifier(
+    n_estimators=300,
+    max_depth=None,
+    random_state=42,
+    class_weight="balanced",
+)
+```
+
+The evaluation set contains **656 observations**:
+
+- 400 non-potable samples
+- 256 potable samples
+
+### Overall metrics
 
 | Metric | Score |
 |---|---:|
-| Accuracy | `TO UPDATE` |
-| Precision | `TO UPDATE` |
-| Recall | `TO UPDATE` |
-| F1-score | `TO UPDATE` |
+| Training accuracy | 1.0000 |
+| Test accuracy | 0.6677 |
+| Macro precision | 0.6723 |
+| Macro recall | 0.5981 |
+| Macro F1-score | 0.5842 |
+| Weighted precision | 0.6708 |
+| Weighted recall | 0.6677 |
+| Weighted F1-score | 0.6251 |
 
-### Validation configuration
+### Per-class performance
 
-| Parameter | Value |
-|---|---|
-| Validation method | Train/test split |
-| Test size | `TO UPDATE` |
-| Random state | 42 |
-| Final estimator | Random Forest Classifier |
-| Number of estimators | `TO UPDATE` |
-| Maximum depth | `TO UPDATE` |
+| Class | Precision | Recall | F1-score | Support |
+|---|---:|---:|---:|---:|
+| Non-potable (`0`) | 0.6655 | 0.9150 | 0.7705 | 400 |
+| Potable (`1`) | 0.6792 | 0.2812 | 0.3978 | 256 |
 
-Do not add estimated or invented results. Use the values from the final MLflow
-run or from the evaluation output generated by the pipeline.
+### Confusion matrix
+
+|  | Predicted non-potable | Predicted potable |
+|---|---:|---:|
+| Actual non-potable | 366 | 34 |
+| Actual potable | 184 | 72 |
+
+### Interpretation
+
+The model is strong at identifying **non-potable water**, reaching a recall of
+**91.50%** for class `0`.
+
+However, its recall for potable water is lower at **28.12%**, meaning that many
+potable samples are classified as non-potable. The perfect training accuracy
+combined with a test accuracy of approximately **66.77%** also suggests
+overfitting.
+
+This behavior makes the project a useful MLOps demonstration while highlighting
+several machine-learning improvements that could be explored:
+
+- Hyperparameter optimization
+- Cross-validation
+- Probability-threshold tuning
+- Alternative classifiers
+- Feature selection
+- Resampling strategies
+- Calibration
+- More advanced preprocessing
+- Ensemble comparison
+
+---
+
+## MLflow Experiment Tracking
+
+The training function creates or reuses the following MLflow experiment:
+
+```text
+WaterPotability
+```
+
+The default tracking backend is:
+
+```text
+sqlite:///mlflow.db
+```
+
+Each training run logs:
+
+### Parameters
+
+- `n_estimators`
+- `max_depth`
+- `random_state`
+
+### Metrics
+
+- `train_accuracy`
+- `test_accuracy`
+
+### Artifacts
+
+- Scikit-learn model
+- Input example containing five training rows
+
+The model is logged under:
+
+```text
+model
+```
+
+### Start the MLflow interface
+
+After training at least one model, run:
+
+```bash
+mlflow ui \
+  --backend-store-uri sqlite:///mlflow.db \
+  --host 0.0.0.0 \
+  --port 5000
+```
+
+On Windows PowerShell, the command can be written on one line:
+
+```powershell
+mlflow ui --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 --port 5000
+```
+
+Open:
+
+```text
+http://localhost:5000
+```
 
 ---
 
@@ -298,12 +462,53 @@ run or from the evaluation output generated by the pipeline.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/` | API information or service status |
-| `GET` | `/health` | Health-check endpoint, if enabled |
+| `GET` | `/` | Return the API name and links to the documentation and UI |
+| `GET` | `/health` | Return service health and model-loading status |
 | `POST` | `/predict` | Predict whether a water sample is potable |
-| `POST` | `/retrain` | Retrain and reload the machine learning model |
-| `GET` | `/docs` | Interactive Swagger documentation |
-| `GET` | `/redoc` | ReDoc API documentation |
+| `POST` | `/retrain` | Retrain, save, and reload the Random Forest model |
+| `GET` | `/ui` | Display the custom browser interface |
+| `GET` | `/docs` | Display interactive Swagger documentation |
+| `GET` | `/redoc` | Display ReDoc documentation |
+
+### API metadata
+
+| Property | Value |
+|---|---|
+| Title | Water Quality MLOps API |
+| Version | 2.0.0 |
+| Framework | FastAPI |
+| Documentation | Swagger UI and ReDoc |
+
+---
+
+## Input Validation
+
+The prediction endpoint validates each measurement through Pydantic.
+
+| Field | Accepted range |
+|---|---:|
+| `ph` | 0 to 14 |
+| `Hardness` | 0 to 500 |
+| `Solids` | 0 to 50,000 |
+| `Chloramines` | 0 to 20 |
+| `Sulfate` | 0 to 1,000 |
+| `Conductivity` | 0 to 2,000 |
+| `Organic_carbon` | 0 to 100 |
+| `Trihalomethanes` | 0 to 300 |
+| `Turbidity` | 0 to 20 |
+
+Validation errors are returned as structured JSON:
+
+```json
+{
+  "errors": [
+    {
+      "field": "ph",
+      "message": "Input should be less than or equal to 14"
+    }
+  ]
+}
+```
 
 ---
 
@@ -311,11 +516,12 @@ run or from the evaluation output generated by the pipeline.
 
 ### Prerequisites
 
-Make sure the following tools are installed:
+Install the following tools:
 
-- Python 3.11 or later
+- Python 3.12
 - Git
-- Docker and Docker Compose, for the containerized setup
+- Docker
+- Docker Compose
 
 ### Clone the repository
 
@@ -324,17 +530,13 @@ git clone https://github.com/sarah-falehh/water-quality-prediction-mlops.git
 cd water-quality-prediction-mlops
 ```
 
----
-
-## Run Locally
-
-### 1. Create a virtual environment
+### Create a virtual environment
 
 ```bash
 python -m venv .venv
 ```
 
-### 2. Activate it on Windows
+### Activate it on Windows
 
 ```powershell
 .venv\Scripts\activate
@@ -346,101 +548,94 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Install the dependencies
+### Install dependencies
 
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Start the FastAPI server
+---
+
+## Train the Model
+
+The API requires a serialized model before `/predict` can be used.
+
+Run the command-line training script:
+
+### Linux or macOS
 
 ```bash
-uvicorn water_quality.api:app --app-dir src --reload
+PYTHONPATH=src python -m water_quality.cli
 ```
 
-The API will be available at:
+### Windows PowerShell
 
-```text
-http://localhost:8000
+```powershell
+$env:PYTHONPATH="src"
+python -m water_quality.cli
 ```
 
-Swagger documentation:
+The default model is saved to:
 
 ```text
-http://localhost:8000/docs
+artifacts/rf_model.joblib
 ```
 
-ReDoc documentation:
+Expected console output:
 
 ```text
-http://localhost:8000/redoc
+Model saved to artifacts/rf_model.joblib; test accuracy=0.6677
+```
+
+### Customize training
+
+```powershell
+$env:PYTHONPATH="src"
+python -m water_quality.cli --n-estimators 500 --max-depth 20
 ```
 
 ---
 
-## Run with Docker
+## Run the API Locally
 
-Build and start the full application stack:
-
-```bash
-docker compose up --build
-```
-
-Run the services in the background:
+### Linux or macOS
 
 ```bash
-docker compose up --build -d
+PYTHONPATH=src uvicorn water_quality.api:app --reload --port 8000
 ```
 
-View running containers:
+### Windows PowerShell
 
-```bash
-docker compose ps
+```powershell
+$env:PYTHONPATH="src"
+uvicorn water_quality.api:app --reload --port 8000
 ```
 
-View service logs:
+Available interfaces:
 
-```bash
-docker compose logs -f
-```
-
-Stop the application:
-
-```bash
-docker compose down
-```
-
-Remove containers and associated volumes:
-
-```bash
-docker compose down -v
-```
-
-Depending on the ports configured in `docker-compose.yml`, the services should
-be accessible through addresses similar to:
-
-| Service | Default address |
+| Interface | Address |
 |---|---|
-| FastAPI | `http://localhost:8000` |
+| API root | `http://localhost:8000` |
+| Health endpoint | `http://localhost:8000/health` |
+| Custom UI | `http://localhost:8000/ui` |
 | Swagger UI | `http://localhost:8000/docs` |
-| MLflow | `http://localhost:5000` |
-| Elasticsearch | `http://localhost:9200` |
-| Kibana | `http://localhost:5601` |
-
-Verify these values against the actual ports defined in your
-`docker-compose.yml`.
+| ReDoc | `http://localhost:8000/redoc` |
 
 ---
 
-## API Usage
+## Prediction API Usage
+
+The API must have a trained model loaded. When no serialized model exists, the
+prediction endpoint returns HTTP `503`:
+
+```json
+{
+  "detail": "No model is loaded. Call POST /retrain first."
+}
+```
 
 ### Prediction request
-
-Check the exact field names and validation constraints in
-`src/water_quality/api.py`.
-
-Example request:
 
 ```bash
 curl -X POST "http://localhost:8000/predict" \
@@ -458,39 +653,63 @@ curl -X POST "http://localhost:8000/predict" \
   }'
 ```
 
-Example response:
+### Response structure
 
 ```json
 {
   "prediction": 0,
-  "label": "non potable"
+  "label": "not potable",
+  "confidence": 0.82
 }
 ```
 
-### Retraining request
+The exact confidence depends on the trained model and submitted measurements.
 
-Example:
+The output fields are:
+
+| Field | Description |
+|---|---|
+| `prediction` | Binary model prediction: `0` or `1` |
+| `label` | `not potable` or `potable` |
+| `confidence` | Probability assigned to the predicted class |
+
+---
+
+## Model Retraining API
+
+The retraining endpoint:
+
+1. Reads the dataset.
+2. Repeats preprocessing.
+3. Trains a new Random Forest.
+4. Creates an MLflow run.
+5. Logs parameters and metrics.
+6. Logs the model artifact.
+7. Sends test accuracy to Elasticsearch when available.
+8. Saves the model using Joblib.
+9. Reloads the new model into the running FastAPI application.
+
+### Retraining request with default parameters
 
 ```bash
 curl -X POST "http://localhost:8000/retrain" \
   -H "Content-Type: application/json" \
   -d '{
-    "n_estimators": 500,
-    "max_depth": 20,
+    "n_estimators": 300,
+    "max_depth": null,
     "random_state": 42
   }'
 ```
 
-Example response:
+### Response
 
 ```json
 {
   "status": "success",
-  "message": "Model retrained and reloaded.",
-  "new_accuracy": 0.69,
+  "test_accuracy": 0.6676829268292683,
   "parameters_used": {
-    "n_estimators": 500,
-    "max_depth": 20,
+    "n_estimators": 300,
+    "max_depth": null,
     "random_state": 42
   }
 }
@@ -498,12 +717,140 @@ Example response:
 
 ---
 
+## Run with Docker
+
+The Docker image uses:
+
+```text
+python:3.12-slim
+```
+
+The application runs as a non-root user and includes a health check against:
+
+```text
+http://localhost:8000/health
+```
+
+### Build and start the complete stack
+
+```bash
+docker compose up --build
+```
+
+### Run in detached mode
+
+```bash
+docker compose up --build -d
+```
+
+### View running containers
+
+```bash
+docker compose ps
+```
+
+### View logs
+
+```bash
+docker compose logs -f
+```
+
+### Stop the stack
+
+```bash
+docker compose down
+```
+
+### Remove containers and volumes
+
+```bash
+docker compose down -v
+```
+
+### Docker Compose services
+
+| Service | Port | Description |
+|---|---:|---|
+| FastAPI API | 8000 | Prediction, retraining, health check, and UI |
+| Elasticsearch | 9200 | Stores model-evaluation metrics |
+| Kibana | 5601 | Explores and visualizes Elasticsearch data |
+| Filebeat | Internal | Forwards Docker container logs |
+
+> MLflow is configured with a local SQLite backend but is not currently defined
+> as a separate Docker Compose service.
+
+---
+
+## Monitoring and Logging
+
+The training pipeline sends the following document to Elasticsearch after a
+successful MLflow run:
+
+```json
+{
+  "run_id": "mlflow-run-id",
+  "metric": "test_accuracy",
+  "value": 0.6676829268292683,
+  "timestamp": "UTC ISO-8601 timestamp",
+  "source": "water-quality-mlops-pipeline"
+}
+```
+
+The Elasticsearch index is:
+
+```text
+mlops-metrics
+```
+
+If Elasticsearch is unavailable, training continues and a warning is logged.
+Monitoring failures therefore do not interrupt the model-training pipeline.
+
+### Elasticsearch
+
+Open:
+
+```text
+http://localhost:9200
+```
+
+Check the metrics index:
+
+```bash
+curl "http://localhost:9200/mlops-metrics/_search?pretty"
+```
+
+### Kibana
+
+Open:
+
+```text
+http://localhost:5601
+```
+
+Create a data view using:
+
+```text
+mlops-metrics*
+```
+
+Useful fields include:
+
+- `run_id`
+- `metric`
+- `value`
+- `timestamp`
+- `source`
+
+### Filebeat
+
+Filebeat is configured as part of the Docker Compose stack to read Docker
+container logs and forward them to Elasticsearch.
+
+---
+
 ## Screenshots
 
-### Prediction Endpoint
-
-The prediction endpoint returns the binary model output and a human-readable
-water-potability label.
+### Swagger Prediction Endpoint
 
 <p align="center">
   <img
@@ -515,10 +862,7 @@ water-potability label.
 
 ---
 
-### Model Retraining Endpoint
-
-The retraining endpoint accepts model hyperparameters, runs the training
-pipeline, reloads the model, and returns the updated evaluation result.
+### Swagger Retraining Endpoint
 
 <p align="center">
   <img
@@ -532,8 +876,6 @@ pipeline, reloads the model, and returns the updated evaluation result.
 
 ### Docker Image
 
-The application image can be built and distributed through Docker.
-
 <p align="center">
   <img
     src="assets/screenshots/dockerhub-image.png"
@@ -544,190 +886,194 @@ The application image can be built and distributed through Docker.
 
 ---
 
-## MLflow Experiment Tracking
-
-MLflow is used to manage reproducibility and compare model experiments.
-
-The pipeline can record:
-
-- Training parameters
-- Hyperparameter values
-- Accuracy
-- Precision
-- Recall
-- F1-score
-- Model artifacts
-- Experiment timestamps
-- Run identifiers
-
-Add a screenshot when the MLflow interface is running:
-
-```text
-assets/screenshots/mlflow-experiments.png
-```
-
-Then uncomment the following block:
-
-<!--
-<p align="center">
-  <img
-    src="assets/screenshots/mlflow-experiments.png"
-    alt="MLflow experiment tracking"
-    width="90%"
-  >
-</p>
--->
-
----
-
-## Monitoring and Logging
-
-The monitoring stack is designed around:
-
-- Structured API request logs
-- Prediction logs
-- Retraining events
-- Error logs
-- Elasticsearch indexing
-- Filebeat log forwarding
-- Kibana visualization
-
-Add a real Kibana screenshot when the monitoring stack is running:
-
-```text
-assets/screenshots/kibana-monitoring.png
-```
-
-Then uncomment the following block:
-
-<!--
-<p align="center">
-  <img
-    src="assets/screenshots/kibana-monitoring.png"
-    alt="Kibana monitoring interface"
-    width="90%"
-  >
-</p>
--->
-
-Do not describe the project as having a complete monitoring dashboard unless
-the corresponding Kibana dashboard has actually been configured and tested.
-
----
-
 ## Testing
 
 Run the complete test suite:
 
+### Linux or macOS
+
 ```bash
-pytest
+PYTHONPATH=src pytest -q
 ```
 
-Run tests with verbose output:
+### Windows PowerShell
 
-```bash
+```powershell
+$env:PYTHONPATH="src"
+pytest -q
+```
+
+Run verbose tests:
+
+```powershell
+$env:PYTHONPATH="src"
 pytest -v
 ```
 
-Run a specific test file:
+### Current automated checks
 
-```bash
-pytest tests/test_api.py -v
-```
+The test suite currently verifies:
 
-The tests cover:
-
-- API availability
-- Request validation
-- Prediction behavior
-- Pipeline execution
-- Model-training components
+- `/health` returns a successful response
+- The API reports a healthy service state
+- `/predict` returns HTTP `503` when no model is loaded
+- The dataset split remains internally consistent
+- The target is removed from the feature matrix
+- No missing values remain after preprocessing
 
 ---
 
 ## Code Quality
 
-Format the code:
+### Format code
 
 ```bash
 black src tests
 ```
 
-Check code formatting without modifying files:
+### Verify formatting
 
 ```bash
 black --check src tests
 ```
 
-Run linting:
+### Run linting
 
 ```bash
-flake8 src tests
+flake8 src tests --max-line-length=100
 ```
 
-Run the security scanner:
+### Run security analysis
 
 ```bash
 bandit -r src
 ```
 
-The same checks can be executed automatically by the GitHub Actions workflow.
+### Run all Makefile checks
+
+```bash
+make format
+make lint
+make security
+make test
+```
 
 ---
 
 ## Continuous Integration
 
-The GitHub Actions pipeline validates the project whenever changes are pushed
-or submitted through a pull request.
-
-Typical CI stages include:
-
-1. Repository checkout
-2. Python environment setup
-3. Dependency installation
-4. Formatting verification
-5. Linting
-6. Security checks
-7. Automated testing
-8. Optional Docker build verification
-
-Workflow file:
+The workflow is located at:
 
 ```text
 .github/workflows/mlops-ci.yml
 ```
 
+It runs on:
+
+- Pushes to `main`
+- Pushes to `master`
+- Pushes to `dev`
+- Pull requests
+
+The CI job performs:
+
+1. Repository checkout
+2. Python 3.12 setup
+3. Pip dependency caching
+4. Dependency installation
+5. Black formatting verification
+6. Flake8 linting
+7. Bandit security scanning
+8. Pytest execution
+
+The test command executed in CI is:
+
+```bash
+PYTHONPATH=src pytest -q
+```
+
+---
+
+## Configuration
+
+The project supports environment-variable overrides.
+
+| Variable | Default value |
+|---|---|
+| `DATA_PATH` | `data/water_potability.csv` |
+| `MODEL_PATH` | `artifacts/rf_model.joblib` |
+| `MLFLOW_TRACKING_URI` | `sqlite:///mlflow.db` |
+| `ELASTICSEARCH_URL` | `http://localhost:9200` |
+
+Docker Compose overrides:
+
+| Variable | Docker value |
+|---|---|
+| `DATA_PATH` | `/app/data/water_potability.csv` |
+| `MODEL_PATH` | `/app/artifacts/rf_model.joblib` |
+| `ELASTICSEARCH_URL` | `http://elasticsearch:9200` |
+
 ---
 
 ## Security and Data Protection
 
-- Secrets and API credentials must be stored in environment variables.
+- API credentials and secrets should be stored in environment variables.
 - `.env` files must never be committed.
-- MLflow databases and generated run folders should remain excluded from Git.
-- Trained models should be versioned through an artifact store or model
-  registry when the project is deployed.
-- Production deployments should add authentication, authorization, request
-  limits, and HTTPS.
+- MLflow run folders and SQLite databases should remain excluded from Git.
+- Serialized models should be stored in controlled artifact storage for
+  production use.
+- The Docker application runs as a non-root user.
+- Production deployment should add authentication and authorization.
+- Production deployment should enforce HTTPS.
+- Rate limiting should be enabled before exposing the API publicly.
+- Uploaded or external data should be validated before model processing.
+
+---
+
+## Known Limitations
+
+- The model shows significant overfitting.
+- Recall for potable water is low.
+- The current pipeline evaluates one default estimator configuration.
+- MLflow is not currently included as a Docker Compose service.
+- The API does not currently implement authentication.
+- The API does not currently implement rate limiting.
+- The Kibana dashboard must be configured manually.
+- Automated model drift detection is not implemented.
+- Hyperparameter optimization is not automated.
+- The current automated tests do not yet cover successful predictions with a
+  loaded model.
+- This model must not be used for real-world drinking-water safety decisions.
 
 ---
 
 ## Future Improvements
 
-- Deploy the application to AWS, Azure, or Google Cloud
-- Add Kubernetes manifests and Helm packaging
-- Introduce an MLflow Model Registry workflow
+- Add cross-validation
+- Add automated hyperparameter optimization
+- Compare Random Forest with XGBoost, LightGBM, and gradient boosting
+- Tune the classification threshold
+- Improve potable-class recall
+- Add probability calibration
+- Add feature-selection analysis
+- Add feature-importance visualizations
+- Add confusion-matrix and ROC-curve artifacts to MLflow
+- Add an MLflow Model Registry workflow
+- Add MLflow as a Docker Compose service
 - Add automated model promotion between environments
-- Implement scheduled model retraining
+- Add scheduled retraining
 - Add data-drift and concept-drift detection
 - Integrate Prometheus and Grafana
-- Add API authentication and authorization
+- Add authentication and authorization
 - Add rate limiting
-- Store artifacts in cloud object storage
-- Add a feature store
-- Improve test coverage
+- Add cloud object storage
+- Add Kubernetes manifests
+- Add Helm packaging
+- Deploy to AWS, Azure, or Google Cloud
+- Improve automated test coverage
 - Add load and performance testing
 - Add automated Docker image publishing
-- Add a complete Kibana monitoring dashboard
+- Add a preconfigured Kibana dashboard
 
 ---
 
